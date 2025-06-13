@@ -1,0 +1,34 @@
+name: Build
+on:
+  push:
+    branches:
+      - main
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4 # https://github.com/actions/checkout/releases
+        with:
+          fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
+      - name: Set up JDK 18
+        uses: actions/setup-java@v4 # https://github.com/actions/setup-java/releases
+        with:
+          distribution: 'temurin'
+          java-version: 18
+      - name: Cache Gradle
+        uses: actions/cache@v4.2.0 # https://github.com/actions/cache/releases
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+      - name: Build and analyze
+        run: ./gradlew clean build
+      - name: Upload a Build Artifact
+        uses: actions/upload-artifact@v4.3.3 # https://github.com/actions/upload-artifact/releases
+        with:
+          name: Click here to download
+          path: build
